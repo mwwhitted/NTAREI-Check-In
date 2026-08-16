@@ -62,7 +62,6 @@ function clearAllErrors() {
   setFieldError('first-name', '');
   setFieldError('last-name', '');
   setFieldError('email', '');
-  setFieldError('source', '');
 }
 
 function collectFormData() {
@@ -98,7 +97,6 @@ function validate(data) {
     firstInvalidEl = firstInvalidEl || emailInput;
   }
   if (!data.source) {
-    setFieldError('source', 'Please choose one option.');
     valid = false;
     firstInvalidEl = firstInvalidEl || form.querySelector('input[name="source"]');
   }
