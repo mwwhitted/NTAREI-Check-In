@@ -1,0 +1,376 @@
+:root {
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-primary: #0b3d63;
+  --color-primary-dark: #082c48;
+  --color-text: #17202a;
+  --color-muted: #5a6a78;
+  --color-border: #cfd8e0;
+  --color-error: #9b1c1c;
+  --color-error-bg: #fdecec;
+  --color-danger: #9b1c1c;
+  --color-danger-bg: #fdecec;
+  --color-focus: #1a73c1;
+  --touch-target: 44px;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 12px
+    calc(16px + env(safe-area-inset-left));
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.app-header__title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.staff-panel {
+  position: relative;
+}
+
+.staff-panel__toggle {
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 14px;
+  min-height: var(--touch-target);
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.staff-panel__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.staff-panel__body {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 16px;
+  min-width: 260px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.staff-panel__count {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.staff-panel__hint {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.staff-panel__divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 16px 0;
+}
+
+.staff-panel__warning {
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: var(--color-danger);
+  font-size: 1rem;
+}
+
+.staff-panel__confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.staff-panel__confirm-actions .btn {
+  flex: 1;
+  min-height: var(--touch-target);
+  font-size: 0.95rem;
+  padding: 10px 14px;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 20px calc(16px + env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom))
+    calc(16px + env(safe-area-inset-left));
+}
+
+.event-title {
+  font-size: 1.6rem;
+  letter-spacing: 0.03em;
+  color: var(--color-primary);
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.event-subtitle {
+  text-align: center;
+  color: var(--color-muted);
+  margin: 6px 0 28px;
+  font-size: 1.1rem;
+}
+
+.field {
+  margin-bottom: 22px;
+}
+
+.field label,
+.field legend {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.field input[type='text'],
+.field input[type='email'] {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  font-size: 1.1rem;
+}
+
+.field input[type='text']:focus,
+.field input[type='email']:focus {
+  border-color: var(--color-focus);
+}
+
+.field-error {
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+}
+
+.field-hint {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.field--checkbox {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.checkbox-label,
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--touch-target);
+  padding: 10px 4px;
+  font-size: 1.05rem;
+}
+
+.checkbox-label input,
+.radio-label input {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.field--radio-group {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 14px;
+  background: var(--color-surface);
+}
+
+.field--radio-group legend {
+  padding: 0 4px;
+}
+
+.radio-label {
+  border-radius: 8px;
+}
+
+.radio-label:hover {
+  background: var(--color-bg);
+}
+
+.source-other-text {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: 10px 14px;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  font-size: 1.05rem;
+  margin-top: 8px;
+}
+
+.source-other-text:disabled {
+  background: var(--color-bg);
+  color: var(--color-muted);
+}
+
+.thank-you {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 28px 0;
+}
+
+.btn {
+  min-height: 52px;
+  border-radius: 12px;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn--large {
+  width: 100%;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-dark);
+}
+
+.btn--secondary {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.btn--danger-outline {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+  width: 100%;
+}
+
+.handoff-name {
+  text-align: center;
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin: 16px 0 20px;
+  word-break: break-word;
+}
+
+.handoff-details {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 8px 20px;
+  margin: 0 0 24px;
+}
+
+.handoff-row {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.handoff-row:last-child {
+  border-bottom: none;
+}
+
+.handoff-row dt {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.handoff-row dd {
+  margin: 4px 0 0;
+  font-size: 1.15rem;
+  word-break: break-word;
+}
+
+.return-to-staff {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin: 0 0 28px;
+}
+
+.handoff-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.status-message:not(:empty) {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--color-muted);
+}
+
+@media (min-width: 480px) {
+  .handoff-actions {
+    flex-direction: row;
+  }
+
+  .handoff-actions .btn {
+    flex: 1;
+  }
+}

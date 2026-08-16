@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>NTAREI Check-In</title>
+<meta name="description" content="Offline attendee check-in for NTAREI meetings" />
+<meta name="theme-color" content="#0b3d63" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="NTAREI Check-In" />
+<link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+<header class="app-header">
+  <span class="app-header__title">NTAREI Check-In</span>
+  <details class="staff-panel" id="staff-panel">
+    <summary class="staff-panel__toggle">Staff</summary>
+
+    <div class="staff-panel__body" id="staff-panel-default">
+      <p class="staff-panel__count">Records saved: <strong id="record-count">0</strong></p>
+      <button type="button" id="export-csv-btn" class="btn btn--secondary">Export CSV</button>
+      <p class="staff-panel__hint">Exports all records stored on this tablet.</p>
+
+      <hr class="staff-panel__divider" />
+
+      <button type="button" id="clear-data-btn" class="btn btn--danger-outline">Clear All Data&hellip;</button>
+      <p class="staff-panel__hint">Permanently deletes every record on this tablet. Export first if you need them.</p>
+    </div>
+
+    <div class="staff-panel__body" id="clear-data-confirm" hidden>
+      <p class="staff-panel__warning" id="clear-data-warning" role="alert">Delete all records?</p>
+      <p class="staff-panel__hint">
+        This cannot be undone. Use Export CSV first if you haven&rsquo;t already saved this data.
+      </p>
+      <div class="staff-panel__confirm-actions">
+        <button type="button" id="clear-data-cancel-btn" class="btn btn--secondary">Cancel</button>
+        <button type="button" id="clear-data-confirm-btn" class="btn btn--danger">Delete all</button>
+      </div>
+    </div>
+  </details>
+</header>
+
+<main>
+  <!-- Attendee sign-in form -->
+  <section id="attendee-view" class="view">
+    <h1 class="event-title">NTAREI MAIN MEETING</h1>
+    <p class="event-subtitle">Welcome. Please sign in.</p>
+
+    <form id="attendee-form" novalidate>
+      <div class="field">
+        <label for="first-name">First name</label>
+        <input type="text" id="first-name" name="first_name" autocomplete="off" required />
+        <p class="field-error" id="first-name-error" role="alert" hidden>First name is required.</p>
+      </div>
+
+      <div class="field">
+        <label for="last-name">Last name</label>
+        <input type="text" id="last-name" name="last_name" autocomplete="off" required />
+        <p class="field-error" id="last-name-error" role="alert" hidden>Last name is required.</p>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="off" inputmode="email" required />
+        <p class="field-error" id="email-error" role="alert" hidden>Email is required.</p>
+      </div>
+
+      <div class="field field--checkbox">
+        <label class="checkbox-label">
+          <input type="checkbox" id="first-time" name="first_time" />
+          <span>Yes, my first time.</span>
+        </label>
+        <p class="field-hint">Is this your first time to attend an NTAREI Main Meeting?</p>
+      </div>
+
+      <fieldset class="field field--radio-group">
+        <legend>How did you learn about this meeting?</legend>
+        <label class="radio-label">
+          <input type="radio" name="source" value="Google search" required />
+          <span>Google search</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="ChatGPT / AI search" />
+          <span>ChatGPT / AI search</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="Saw video ad" />
+          <span>Saw video ad</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="Someone told me" />
+          <span>Someone told me</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="NTAREI email" />
+          <span>NTAREI email</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="Facebook" />
+          <span>Facebook</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="Meetup" />
+          <span>Meetup</span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="source" value="Other" id="source-other-radio" />
+          <span>Other</span>
+        </label>
+        <input
+          type="text"
+          id="source-other-text"
+          name="source_other"
+          class="source-other-text"
+          placeholder="Please tell us more"
+          disabled
+        />
+        <p class="field-error" id="source-error" role="alert" hidden>Please choose one option.</p>
+      </fieldset>
+
+      <p class="thank-you">Thank you. We&rsquo;re glad you came.</p>
+
+      <button type="submit" class="btn btn--primary btn--large">CONTINUE &rarr;</button>
+    </form>
+  </section>
+
+  <!-- Read-only staff handoff view -->
+  <section id="handoff-view" class="view" hidden>
+    <h1 class="handoff-name" id="handoff-name"></h1>
+    <dl class="handoff-details">
+      <div class="handoff-row">
+        <dt>Email</dt>
+        <dd id="handoff-email"></dd>
+      </div>
+      <div class="handoff-row">
+        <dt>First NTAREI Main Meeting</dt>
+        <dd id="handoff-first-time"></dd>
+      </div>
+      <div class="handoff-row">
+        <dt>How learned</dt>
+        <dd id="handoff-source"></dd>
+      </div>
+    </dl>
+
+    <p class="return-to-staff">RETURN TO STAFF &rarr;</p>
+
+    <div class="handoff-actions">
+      <button type="button" id="edit-btn" class="btn btn--secondary btn--large">&larr; EDIT</button>
+      <button type="button" id="next-attendee-btn" class="btn btn--primary btn--large">NEXT ATTENDEE</button>
+    </div>
+  </section>
+
+  <p class="status-message" id="status-message" role="status" aria-live="polite"></p>
+</main>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
