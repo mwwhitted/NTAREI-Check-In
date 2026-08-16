@@ -1,4 +1,8 @@
 const DB_NAME = 'ntarei-checkin';
+// If this ever needs to change, add matching logic in onupgradeneeded below
+// that migrates existing records forward — never one that recreates or
+// clears the store, or every tablet's saved attendees would be lost on
+// next launch.
 const DB_VERSION = 1;
 const STORE_NAME = 'attendees';
 
