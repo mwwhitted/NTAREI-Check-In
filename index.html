@@ -29,6 +29,35 @@
       <button type="button" id="export-csv-btn" class="btn btn--secondary">Export CSV</button>
       <p class="staff-panel__hint">Exports all records stored on this tablet.</p>
 
+      <button type="button" id="last-entry-btn" class="btn btn--secondary">View Last Entry</button>
+      <p class="staff-panel__hint" id="last-entry-empty" hidden>No entries yet.</p>
+      <dl class="handoff-details staff-panel__last-entry" id="last-entry-details" hidden>
+        <div class="handoff-row">
+          <dt>Name</dt>
+          <dd id="last-entry-name"></dd>
+        </div>
+        <div class="handoff-row">
+          <dt>Email</dt>
+          <dd id="last-entry-email"></dd>
+        </div>
+        <div class="handoff-row">
+          <dt>ZIP code</dt>
+          <dd id="last-entry-zip"></dd>
+        </div>
+        <div class="handoff-row">
+          <dt>First NTAREI Main Meeting</dt>
+          <dd id="last-entry-first-time"></dd>
+        </div>
+        <div class="handoff-row">
+          <dt>How learned</dt>
+          <dd id="last-entry-source"></dd>
+        </div>
+        <div class="handoff-row">
+          <dt>Submitted</dt>
+          <dd id="last-entry-submitted"></dd>
+        </div>
+      </dl>
+
       <hr class="staff-panel__divider" />
 
       <button type="button" id="clear-data-btn" class="btn btn--danger-outline">Clear All Data&hellip;</button>

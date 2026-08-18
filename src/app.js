@@ -26,6 +26,10 @@ const clearDataWarning = document.getElementById('clear-data-warning');
 const clearDataCancelBtn = document.getElementById('clear-data-cancel-btn');
 const clearDataConfirmBtn = document.getElementById('clear-data-confirm-btn');
 
+const lastEntryBtn = document.getElementById('last-entry-btn');
+const lastEntryDetails = document.getElementById('last-entry-details');
+const lastEntryEmpty = document.getElementById('last-entry-empty');
+
 function generateRecordId() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -242,14 +246,61 @@ function showStaffDefault() {
   staffPanelDefault.hidden = false;
 }
 
+function hideLastEntry() {
+  lastEntryDetails.hidden = true;
+  lastEntryEmpty.hidden = true;
+}
+
 staffPanel.addEventListener('toggle', () => {
   if (staffPanel.open) {
     refreshRecordCount();
   } else {
     // Always land back on the default staff view next time the panel opens,
-    // so a cancelled or completed clear never leaves the confirmation showing.
+    // so a cancelled or completed clear never leaves the confirmation showing,
+    // and so "View Last Entry" always requires a fresh tap rather than
+    // showing stale data from before.
     showStaffDefault();
+    hideLastEntry();
   }
+});
+
+function findMostRecentRecord(records) {
+  return records.reduce((latest, r) => (!latest || r.created_at > latest.created_at ? r : latest), null);
+}
+
+lastEntryBtn.addEventListener('click', async () => {
+  const isShowing = !lastEntryDetails.hidden || !lastEntryEmpty.hidden;
+  if (isShowing) {
+    hideLastEntry();
+    return;
+  }
+
+  let records = [];
+  try {
+    records = await getAllRecords();
+  } catch (err) {
+    announce('Could not load the last entry.');
+    return;
+  }
+
+  const record = findMostRecentRecord(records);
+  if (!record) {
+    lastEntryEmpty.hidden = false;
+    return;
+  }
+
+  document.getElementById('last-entry-name').textContent = `${record.first_name} ${record.last_name}`;
+  document.getElementById('last-entry-email').textContent = record.email;
+  document.getElementById('last-entry-zip').textContent = record.zip;
+  document.getElementById('last-entry-first-time').textContent = record.first_time ? 'YES' : 'No';
+  const sourceText =
+    record.source === 'Other' && record.source_other ? `Other — ${record.source_other}` : record.source;
+  document.getElementById('last-entry-source').textContent = sourceText;
+  document.getElementById('last-entry-submitted').textContent = record.created_at
+    ? new Date(record.created_at).toLocaleString()
+    : '';
+
+  lastEntryDetails.hidden = false;
 });
 
 clearDataBtn.addEventListener('click', async () => {

@@ -131,6 +131,22 @@ input {
   color: var(--color-muted);
 }
 
+#last-entry-btn {
+  margin-top: 12px;
+}
+
+#last-entry-details {
+  margin: 10px 0 0;
+}
+
+#last-entry-details .handoff-row dt {
+  font-size: 0.8rem;
+}
+
+#last-entry-details .handoff-row dd {
+  font-size: 1rem;
+}
+
 .staff-panel__divider {
   border: none;
   border-top: 1px solid var(--color-border);
