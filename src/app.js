@@ -141,25 +141,10 @@ function populateFormUI(record) {
   clearAllErrors();
 }
 
-// On real mobile browsers, dismissing the on-screen keyboard resizes the
-// visual viewport *after* this runs, which can silently drag the page back
-// down. Reasserting scroll across a few frames/delays outlasts that resize
-// instead of losing a one-shot race against it.
-function forceScrollToTop() {
-  const toTop = () => window.scrollTo(0, 0);
-  toTop();
-  requestAnimationFrame(toTop);
-  setTimeout(toTop, 150);
-  setTimeout(toTop, 400);
-}
-
 function showForm() {
-  if (document.activeElement && document.activeElement !== document.body) {
-    document.activeElement.blur();
-  }
   handoffView.hidden = true;
   attendeeView.hidden = false;
-  forceScrollToTop();
+  window.scrollTo(0, 0);
   firstNameInput.focus({ preventScroll: true });
 }
 
@@ -173,12 +158,9 @@ function showHandoff(record) {
     record.source === 'Other' && record.source_other ? `Other — ${record.source_other}` : record.source;
   document.getElementById('handoff-source').textContent = sourceText;
 
-  if (document.activeElement && document.activeElement !== document.body) {
-    document.activeElement.blur();
-  }
   attendeeView.hidden = true;
   handoffView.hidden = false;
-  forceScrollToTop();
+  window.scrollTo(0, 0);
   // preventScroll: focusing EDIT would otherwise scroll it into view, undoing
   // the scrollTo above and reopening the handoff screen mid-page instead of
   // at the top.
