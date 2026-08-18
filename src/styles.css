@@ -55,9 +55,34 @@ input {
   color: #ffffff;
 }
 
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-header__logo-badge {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.app-header__logo {
+  display: block;
+  height: 26px;
+  width: auto;
+}
+
 .app-header__title {
   font-weight: 600;
   font-size: 1.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .staff-panel {
@@ -305,11 +330,18 @@ main {
   width: 100%;
 }
 
+.handoff-instruction {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 1.05rem;
+  margin: 8px 0 0;
+}
+
 .handoff-name {
   text-align: center;
   font-size: 1.8rem;
   color: var(--color-primary);
-  margin: 16px 0 20px;
+  margin: 8px 0 20px;
   word-break: break-word;
 }
 
@@ -347,30 +379,48 @@ main {
 
 .return-to-staff {
   text-align: center;
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--color-primary);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 2px solid var(--color-danger);
+  border-radius: 12px;
+  padding: 16px 18px;
   margin: 0 0 28px;
 }
 
-.handoff-actions {
+.handoff-primary-actions {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  justify-content: center;
+  margin: 0 0 20px;
+}
+
+.handoff-primary-actions .btn {
+  width: auto;
+  min-width: 220px;
+}
+
+/* Deliberately pushes NEXT ATTENDEE below the fold on first view of the
+   handoff screen — an explicit product decision (not a bug) to keep it out
+   of the attendee's immediate reach right next to EDIT/RETURN TO STAFF. */
+.handoff-next-spacer {
+  min-height: 55vh;
+}
+
+.handoff-next-corner {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn--next-small {
+  width: auto;
+  min-height: var(--touch-target);
+  padding: 8px 16px;
+  font-size: 0.9rem;
 }
 
 .status-message:not(:empty) {
   text-align: center;
   margin-top: 20px;
   color: var(--color-muted);
-}
-
-@media (min-width: 480px) {
-  .handoff-actions {
-    flex-direction: row;
-  }
-
-  .handoff-actions .btn {
-    flex: 1;
-  }
 }

@@ -89,6 +89,27 @@ is not part of the offline runtime.
 2. Open Chrome's menu and choose **Add to Home screen** / **Install app**.
 3. Launch the app from the Home Screen icon.
 
+## Updating the app after a code change
+
+You do **not** need to redo "Add to Home Screen" after every change — that step only
+creates the Home Screen icon once. Content updates (new fields, wording, layout, etc.)
+reach an already-installed tablet like this:
+
+1. Deploy the updated files (e.g. push to whatever is hosting the app's URL).
+2. On the tablet, connect to Wi-Fi and open the app at least once. In the background,
+   the browser fetches the new `service-worker.js`; if it's different from what's
+   installed, the new version downloads and caches all the updated app-shell files.
+3. Fully close the app (swipe it away in the app switcher) and relaunch it from the
+   Home Screen icon. The relaunch is what actually swaps in the new version — simply
+   leaving the old page open, or a plain in-app reload, may still show the old version
+   until the next full relaunch.
+4. Open the **Staff** panel and check the record count is unchanged, to confirm no data
+   was affected by the update.
+
+Practical takeaway: before an event, open the app once on Wi-Fi (even if you don't
+expect changes) and fully relaunch it, so the tablet is guaranteed to be running the
+latest version before it goes offline for the day.
+
 ## Testing offline operation
 
 1. Install the app as described above while online, and confirm it opens successfully at
@@ -115,9 +136,9 @@ deleted is the explicit, confirmed **Clear All Data** action described below.
 4. Each tablet's CSV is independent. Combine exports from multiple tablets afterward in a
    spreadsheet if needed — this app does not merge tablets itself.
 
-CSV columns (in order): `record_id, created_at, first_name, last_name, email, first_time,
-source, source_other`. Commas, quotes, and line breaks inside a field are escaped per
-RFC 4180 so the file opens correctly in Excel or Numbers.
+CSV columns (in order): `record_id, created_at, first_name, last_name, email, zip,
+first_time, source, source_other`. Commas, quotes, and line breaks inside a field are
+escaped per RFC 4180 so the file opens correctly in Excel or Numbers.
 
 ## SAFE procedure: export test data, then clear it before live use
 
@@ -164,16 +185,20 @@ test-data clear.
 3. **Force-quit and relaunch** the app from the Home Screen icon, so you know this run
    starts from a cold, fully-offline launch — not a paused browser tab.
 4. **Enter 30 fake attendees.** For each one:
-   - Fill in First name, Last name, and Email (mix in a few with punctuation, e.g.
-     `O'Brien`, `Mary-Jane`, and a long name/email, to exercise CSV escaping later).
+   - Fill in First name, Last name, Email, and ZIP code (mix in a few with punctuation,
+     e.g. `O'Brien`, `Mary-Jane`, and a long name/email, to exercise CSV escaping later).
    - Optionally check "Yes, my first time."
    - Select one "How did you learn about this meeting?" option; for at least 3 of the 30,
      choose **Other** and type a short free-text reason (include a comma and a quote
      character in at least one, e.g. `friend's referral, "loved it"`).
    - Tap **CONTINUE →** and confirm the read-only handoff screen shows exactly what was
-     entered, including "RETURN TO STAFF →".
-   - Tap **NEXT ATTENDEE** and confirm the form is completely blank before starting the
-     next attendee.
+     entered, including the prominent red "When complete, please return the tablet to
+     staff." message.
+   - Tap **← EDIT**, confirm the form re-populates with everything you entered (including
+     ZIP), then tap **CONTINUE →** again.
+   - Scroll down to find **NEXT ATTENDEE** in the bottom-right corner — it's deliberately
+     placed below the fold so it isn't in easy reach next to EDIT — tap it and confirm the
+     form is completely blank before starting the next attendee.
    - Every few attendees, open the **Staff** panel and confirm **Records saved** matches
      the count entered so far.
 5. **After all 30**, open the **Staff** panel and confirm **Records saved: 30**.
@@ -183,7 +208,7 @@ test-data clear.
 7. **Export CSV.** Tap **Export CSV**. Open the downloaded file (Files app, or AirDrop it
    to a Mac) and confirm:
    - Exactly 30 data rows, plus one header row.
-   - The header reads `record_id,created_at,first_name,last_name,email,first_time,source,source_other`.
+   - The header reads `record_id,created_at,first_name,last_name,email,zip,first_time,source,source_other`.
    - Names with punctuation and the "Other" free-text entries containing a comma/quote
      appear as single, correctly-formed cells (not split into extra columns).
 8. **Clear test data.** Follow *SAFE procedure: export test data, then clear it before
@@ -199,15 +224,23 @@ Run this on both the target iPad (Safari) and an Android tablet (Chrome) before 
 
 - [ ] App installs to Home Screen and launches in standalone mode (no browser address bar).
 - [ ] With Wi-Fi off, app launches from Home Screen and the sign-in form appears.
-- [ ] Required-field validation: submitting with First name, Last name, Email, or a
-      "how did you learn" selection missing shows an inline error and does not advance.
+- [ ] Required-field validation: submitting with First name, Last name, Email, ZIP code,
+      or a "how did you learn" selection missing shows an inline error and does not advance.
 - [ ] Selecting "Other" enables the free-text field; selecting any other source disables
       and clears it.
-- [ ] CONTINUE shows a read-only handoff screen with the entered name, email, first-time
-      status, and source — including "RETURN TO STAFF →".
-- [ ] EDIT / BACK returns to the form with all previously entered values intact.
+- [ ] CONTINUE shows a read-only handoff screen with the entered name, email, ZIP,
+      first-time status, and source — including the prominent red "When complete, please
+      return the tablet to staff." message.
+- [ ] EDIT / BACK returns to the form with all previously entered values intact, including
+      ZIP.
+- [ ] NEXT ATTENDEE sits in the bottom-right corner, smaller than the other buttons, and
+      requires scrolling to reach — this is intentional (a deliberate product decision, not
+      a bug) so it isn't within easy reach of EDIT/RETURN TO STAFF.
 - [ ] NEXT ATTENDEE returns to a **blank** form — no leftover text, checkbox, or radio
       selection from the previous attendee.
+- [ ] The NTAREI logo appears at the far left of the header, to the left of the app name.
+- [ ] Rotating the tablet between portrait and landscape keeps the app usable in both
+      orientations (no longer portrait-locked).
 - [ ] Enter at least 30 consecutive attendees (mix of short/long names, punctuation in
       names, and "Other" source with free text) without errors or slowdown.
 - [ ] Staff panel record count increases as expected and matches the number of attendees
@@ -222,5 +255,5 @@ Run this on both the target iPad (Safari) and an Android tablet (Chrome) before 
       require any second visit or app restart to take effect.
 - [ ] Email field opens the email-optimized keyboard (with `@` and `.` shortcuts).
 - [ ] On-screen keyboard does not obscure the field currently being typed into.
-- [ ] No horizontal scrolling at any point, in portrait orientation.
+- [ ] No horizontal scrolling at any point, in either orientation.
 - [ ] Two tablets used at once (both offline) keep fully independent record counts.

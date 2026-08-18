@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ntarei-checkin-v2';
+const CACHE_NAME = 'ntarei-checkin-v5';
 
 const APP_SHELL = [
   './',
@@ -11,6 +11,7 @@ const APP_SHELL = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
+  './assets/ntarei-logo.jpg',
 ];
 
 self.addEventListener('install', (event) => {

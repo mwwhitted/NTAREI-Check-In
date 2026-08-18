@@ -4,6 +4,7 @@ const CSV_COLUMNS = [
   'first_name',
   'last_name',
   'email',
+  'zip',
   'first_time',
   'source',
   'source_other',

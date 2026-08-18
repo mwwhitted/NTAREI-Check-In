@@ -8,6 +8,7 @@ const form = document.getElementById('attendee-form');
 const firstNameInput = document.getElementById('first-name');
 const lastNameInput = document.getElementById('last-name');
 const emailInput = document.getElementById('email');
+const zipInput = document.getElementById('zip');
 const firstTimeInput = document.getElementById('first-time');
 const sourceOtherInput = document.getElementById('source-other-text');
 const statusMessage = document.getElementById('status-message');
@@ -39,6 +40,7 @@ function newWorkingRecord() {
     first_name: '',
     last_name: '',
     email: '',
+    zip: '',
     first_time: false,
     source: '',
     source_other: '',
@@ -62,6 +64,7 @@ function clearAllErrors() {
   setFieldError('first-name', '');
   setFieldError('last-name', '');
   setFieldError('email', '');
+  setFieldError('zip', '');
   setFieldError('source', '');
 }
 
@@ -71,6 +74,7 @@ function collectFormData() {
     first_name: firstNameInput.value.trim(),
     last_name: lastNameInput.value.trim(),
     email: emailInput.value.trim(),
+    zip: zipInput.value.trim(),
     first_time: firstTimeInput.checked,
     source: sourceRadio ? sourceRadio.value : '',
     source_other: sourceRadio && sourceRadio.value === 'Other' ? sourceOtherInput.value.trim() : '',
@@ -97,6 +101,11 @@ function validate(data) {
     valid = false;
     firstInvalidEl = firstInvalidEl || emailInput;
   }
+  if (!data.zip) {
+    setFieldError('zip', 'ZIP code is required.');
+    valid = false;
+    firstInvalidEl = firstInvalidEl || zipInput;
+  }
   if (!data.source) {
     setFieldError('source', 'Please choose one option.');
     valid = false;
@@ -117,6 +126,7 @@ function populateFormUI(record) {
   firstNameInput.value = record.first_name;
   lastNameInput.value = record.last_name;
   emailInput.value = record.email;
+  zipInput.value = record.zip;
   firstTimeInput.checked = record.first_time;
 
   const radios = form.querySelectorAll('input[name="source"]');
@@ -140,6 +150,7 @@ function showForm() {
 function showHandoff(record) {
   document.getElementById('handoff-name').textContent = `${record.first_name} ${record.last_name}`;
   document.getElementById('handoff-email').textContent = record.email;
+  document.getElementById('handoff-zip').textContent = record.zip;
   document.getElementById('handoff-first-time').textContent = record.first_time ? 'YES' : 'No';
 
   const sourceText =
@@ -210,7 +221,6 @@ nextAttendeeBtn.addEventListener('click', () => {
   working = newWorkingRecord();
   resetFormUI();
   showForm();
-  announce('Ready for the next attendee.');
 });
 
 exportBtn.addEventListener('click', async () => {
