@@ -46,5 +46,8 @@ export function downloadCsv(records, filename = 'ntarei-checkin-export.csv') {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Revoking immediately can race ahead of the browser actually reading the
+  // blob on some mobile builds, silently dropping the download. A short
+  // delay costs nothing and avoids that.
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }

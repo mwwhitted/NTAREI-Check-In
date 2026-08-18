@@ -66,13 +66,23 @@
 
     <div class="staff-panel__body" id="clear-data-confirm" hidden>
       <p class="staff-panel__warning" id="clear-data-warning" role="alert">Delete all records?</p>
-      <p class="staff-panel__hint">
-        A timestamped backup CSV will download automatically before anything is deleted.
-        This cannot be undone.
+      <p class="staff-panel__hint">This cannot be undone.</p>
+
+      <button type="button" id="clear-data-backup-btn" class="btn btn--secondary">
+        Download Backup CSV
+      </button>
+      <p class="staff-panel__hint" id="clear-data-backup-status" hidden>
+        &#10003; Backup downloaded. You can now delete.
       </p>
+      <p class="staff-panel__hint" id="clear-data-backup-pending">
+        Download a backup before Delete All is enabled.
+      </p>
+
       <div class="staff-panel__confirm-actions">
         <button type="button" id="clear-data-cancel-btn" class="btn btn--secondary">Cancel</button>
-        <button type="button" id="clear-data-confirm-btn" class="btn btn--danger">Delete all</button>
+        <button type="button" id="clear-data-confirm-btn" class="btn btn--danger" disabled>
+          Delete all
+        </button>
       </div>
     </div>
   </details>

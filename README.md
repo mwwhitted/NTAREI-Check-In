@@ -144,10 +144,10 @@ escaped per RFC 4180 so the file opens correctly in Excel or Numbers.
 
 Before handing a tablet to real attendees, export whatever test data is on it and then
 wipe it. The app requires an explicit staff action *and* a separate confirmation step
-before anything is deleted — there is no one-tap way to lose data. As an extra safety
-net, tapping **Delete all** automatically downloads a timestamped backup CSV
-(`ntarei-checkin-backup-<date>_<time>.csv`) *before* anything is removed, even if you
-never tapped Export CSV yourself.
+before anything is deleted — there is no one-tap way to lose data. On the confirmation
+screen, **Delete all** stays disabled until you've tapped **Download Backup CSV** —
+that backup is a required, separate tap rather than an invisible automatic download, so
+you can actually confirm it happened instead of having to trust it silently worked.
 
 1. Tap **Staff** in the top-right corner of the header to open the staff panel.
 2. Confirm **Records saved** shows the number of test records you expect.
@@ -155,19 +155,20 @@ never tapped Export CSV yourself.
    records* above). Open the file and spot-check it if this is the final check before
    an event.
 4. Tap **Clear All Data…**. The panel switches to a red confirmation screen stating
-   exactly how many records will be permanently deleted, and noting that a backup
-   downloads automatically first.
-5. Tap **Delete all** to proceed, or **Cancel** to back out without changing anything.
-   Tapping Delete all downloads the automatic backup CSV first, then clears the
-   records — check your browser's downloads for a second CSV even though you already
-   exported one in step 3, since this one is generated fresh regardless.
-6. After deleting, the panel returns to the default view and **Records saved** should
+   exactly how many records will be permanently deleted. **Delete all** is greyed out
+   at this point — it isn't tappable yet.
+5. Tap **Download Backup CSV**. Confirm the download completes (check your browser's
+   downloads for a fresh `ntarei-checkin-backup-<date>_<time>.csv`, separate from
+   whatever you exported in step 3). Once it succeeds, a green "Backup downloaded" line
+   appears and **Delete all** becomes tappable.
+6. Tap **Delete all** to proceed, or **Cancel** to back out without changing anything.
+7. After deleting, the panel returns to the default view and **Records saved** should
    read **0**. Close and reopen the staff panel (or the app) to double-check the count
    stuck.
 
-The automatic backup is best-effort: browsers give no way for the app to confirm a
-download actually finished writing to disk, so it's a safety net on top of — not a
-replacement for — manually exporting and checking the CSV in step 3.
+If you back out with **Cancel** and reopen **Clear All Data…** again later, you'll need
+to tap **Download Backup CSV** again — the unlock doesn't persist, so a stale backup
+from an earlier attempt can't be mistaken for a current one.
 
 This is the only way records are ever deleted — closing the app, reopening it, losing
 Wi-Fi, or the service worker updating in the background can never remove a saved record.
@@ -223,7 +224,8 @@ test-data clear.
      appear as single, correctly-formed cells (not split into extra columns).
 8. **Clear test data.** Follow *SAFE procedure: export test data, then clear it before
    live use* above: open the **Staff** panel, tap **Clear All Data…**, confirm the
-   warning names 30 records, tap **Delete all**.
+   warning names 30 records, tap **Download Backup CSV** and confirm it downloads and
+   unlocks **Delete all**, then tap **Delete all**.
 9. **Verify zero.** Confirm the **Staff** panel now reads **Records saved: 0**. Close and
    reopen the app once more and confirm it still reads **0** — the tablet is now clean
    and ready to hand to the first real attendee.
@@ -263,8 +265,9 @@ Run this on both the target iPad (Safari) and an Android tablet (Chrome) before 
       count before anything is deleted; **Cancel** leaves all records untouched.
 - [ ] Confirming the clear deletes every record, updates the count to 0, and does not
       require any second visit or app restart to take effect.
-- [ ] Tapping **Delete all** downloads a timestamped backup CSV *before* the records
-      disappear — check downloads for `ntarei-checkin-backup-<date>_<time>.csv`.
+- [ ] **Delete all** starts disabled on the confirmation screen and stays disabled until
+      **Download Backup CSV** is tapped and succeeds; check downloads for a fresh
+      `ntarei-checkin-backup-<date>_<time>.csv`.
 - [ ] Tap **View Last Entry** with records saved — shows the most recently checked-in
       attendee's details, not the first one entered. With zero records, shows
       "No entries yet." instead.

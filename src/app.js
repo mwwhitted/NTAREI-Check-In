@@ -25,6 +25,9 @@ const clearDataConfirm = document.getElementById('clear-data-confirm');
 const clearDataWarning = document.getElementById('clear-data-warning');
 const clearDataCancelBtn = document.getElementById('clear-data-cancel-btn');
 const clearDataConfirmBtn = document.getElementById('clear-data-confirm-btn');
+const clearDataBackupBtn = document.getElementById('clear-data-backup-btn');
+const clearDataBackupStatus = document.getElementById('clear-data-backup-status');
+const clearDataBackupPending = document.getElementById('clear-data-backup-pending');
 
 const lastEntryBtn = document.getElementById('last-entry-btn');
 const lastEntryDetails = document.getElementById('last-entry-details');
@@ -241,9 +244,16 @@ exportBtn.addEventListener('click', async () => {
   }
 });
 
+function resetClearDataBackupState() {
+  clearDataBackupStatus.hidden = true;
+  clearDataBackupPending.hidden = false;
+  clearDataConfirmBtn.disabled = true;
+}
+
 function showStaffDefault() {
   clearDataConfirm.hidden = true;
   staffPanelDefault.hidden = false;
+  resetClearDataBackupState();
 }
 
 function hideLastEntry() {
@@ -311,40 +321,54 @@ clearDataBtn.addEventListener('click', async () => {
   }
   const noun = count === 1 ? 'record' : 'records';
   clearDataWarning.textContent = `Permanently delete all ${count} attendee ${noun} on this tablet?`;
+  resetClearDataBackupState();
   staffPanelDefault.hidden = true;
   clearDataConfirm.hidden = false;
-  clearDataCancelBtn.focus();
+  clearDataBackupBtn.focus();
 });
 
 clearDataCancelBtn.addEventListener('click', () => {
   showStaffDefault();
 });
 
-clearDataConfirmBtn.addEventListener('click', async () => {
+// Backup is its own explicit, required tap rather than a side effect chained
+// onto Delete all. Two reasons: staff can actually see it happened (a silent
+// background download is unverifiable), and a lone dedicated click is the
+// most reliable way to avoid a browser treating it as an unsolicited
+// "automatic" download and quietly blocking it.
+clearDataBackupBtn.addEventListener('click', async () => {
   let records = [];
   try {
     records = await getAllRecords();
   } catch (err) {
-    announce('Could not read records to back up. Nothing was deleted — please try again.');
+    announce('Could not read records to back up. Please try again.');
     return;
   }
 
-  // Always back up before deleting, even if staff never tapped Export CSV
-  // themselves. Browsers give no way to confirm a download actually landed
-  // on disk, so this is a best-effort safety net, not a guarantee.
-  if (records.length > 0) {
-    try {
-      downloadCsv(records, `ntarei-checkin-backup-${timestampForFilename()}.csv`);
-    } catch (err) {
-      announce('Could not create a backup. Nothing was deleted — please try again.');
-      return;
-    }
+  if (records.length === 0) {
+    announce('There are no records to back up.');
+    return;
   }
 
   try {
+    downloadCsv(records, `ntarei-checkin-backup-${timestampForFilename()}.csv`);
+  } catch (err) {
+    announce('Could not create a backup. Please try again.');
+    return;
+  }
+
+  clearDataBackupPending.hidden = true;
+  clearDataBackupStatus.hidden = false;
+  clearDataConfirmBtn.disabled = false;
+  clearDataConfirmBtn.focus();
+});
+
+clearDataConfirmBtn.addEventListener('click', async () => {
+  if (clearDataConfirmBtn.disabled) return;
+  try {
     await clearAllRecords();
   } catch (err) {
-    announce('Backup downloaded, but records could not be cleared. Please try again.');
+    announce('Could not clear records. Please try again.');
     return;
   }
   showStaffDefault();

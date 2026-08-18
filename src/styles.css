@@ -10,6 +10,7 @@
   --color-error-bg: #fdecec;
   --color-danger: #9b1c1c;
   --color-danger-bg: #fdecec;
+  --color-success: #1a7f37;
   --color-focus: #1a73c1;
   --touch-target: 44px;
   color-scheme: light;
@@ -158,6 +159,15 @@ input {
   font-weight: 700;
   color: var(--color-danger);
   font-size: 1rem;
+}
+
+#clear-data-backup-btn {
+  margin-top: 4px;
+}
+
+#clear-data-backup-status {
+  color: var(--color-success);
+  font-weight: 600;
 }
 
 .staff-panel__confirm-actions {
@@ -319,6 +329,11 @@ main {
   font-size: 1.15rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .btn--large {
