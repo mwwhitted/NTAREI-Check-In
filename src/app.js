@@ -144,7 +144,8 @@ function populateFormUI(record) {
 function showForm() {
   handoffView.hidden = true;
   attendeeView.hidden = false;
-  firstNameInput.focus();
+  window.scrollTo(0, 0);
+  firstNameInput.focus({ preventScroll: true });
 }
 
 function showHandoff(record) {
@@ -159,7 +160,11 @@ function showHandoff(record) {
 
   attendeeView.hidden = true;
   handoffView.hidden = false;
-  editBtn.focus();
+  window.scrollTo(0, 0);
+  // preventScroll: focusing EDIT would otherwise scroll it into view, undoing
+  // the scrollTo above and reopening the handoff screen mid-page instead of
+  // at the top.
+  editBtn.focus({ preventScroll: true });
 }
 
 async function refreshRecordCount() {

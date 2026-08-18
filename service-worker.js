@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ntarei-checkin-v6';
+const CACHE_NAME = 'ntarei-checkin-v7';
 
 const APP_SHELL = [
   './',
