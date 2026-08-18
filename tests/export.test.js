@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { recordsToCsv } from '../src/export.js';
+import { recordsToCsv, timestampForFilename } from '../src/export.js';
 
 test('recordsToCsv includes the expected header in stable column order', () => {
   const csv = recordsToCsv([]);
@@ -135,4 +135,19 @@ test('recordsToCsv handles an empty record set (header only)', () => {
   const csv = recordsToCsv([]);
   const rows = csv.trim().split('\r\n');
   assert.equal(rows.length, 1);
+});
+
+test('timestampForFilename zero-pads month/day/hour/minute/second', () => {
+  const stamp = timestampForFilename(new Date(2026, 0, 5, 9, 3, 7));
+  assert.equal(stamp, '2026-01-05_09-03-07');
+});
+
+test('timestampForFilename handles double-digit values without extra padding', () => {
+  const stamp = timestampForFilename(new Date(2026, 10, 23, 14, 45, 59));
+  assert.equal(stamp, '2026-11-23_14-45-59');
+});
+
+test('timestampForFilename produces a filesystem-safe string (no colons or slashes)', () => {
+  const stamp = timestampForFilename(new Date());
+  assert.doesNotMatch(stamp, /[:/\\]/);
 });

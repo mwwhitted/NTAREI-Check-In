@@ -29,6 +29,13 @@ export function recordsToCsv(records) {
   return [header, ...rows].join('\r\n') + '\r\n';
 }
 
+export function timestampForFilename(date = new Date()) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}_${pad(
+    date.getHours()
+  )}-${pad(date.getMinutes())}-${pad(date.getSeconds())}`;
+}
+
 export function downloadCsv(records, filename = 'ntarei-checkin-export.csv') {
   const csv = recordsToCsv(records);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

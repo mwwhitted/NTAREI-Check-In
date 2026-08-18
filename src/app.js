@@ -1,5 +1,5 @@
 import { putRecord, getAllRecords, countRecords, clearAllRecords } from './db.js';
-import { downloadCsv } from './export.js';
+import { downloadCsv, timestampForFilename } from './export.js';
 
 const attendeeView = document.getElementById('attendee-view');
 const handoffView = document.getElementById('handoff-view');
@@ -321,15 +321,35 @@ clearDataCancelBtn.addEventListener('click', () => {
 });
 
 clearDataConfirmBtn.addEventListener('click', async () => {
+  let records = [];
+  try {
+    records = await getAllRecords();
+  } catch (err) {
+    announce('Could not read records to back up. Nothing was deleted — please try again.');
+    return;
+  }
+
+  // Always back up before deleting, even if staff never tapped Export CSV
+  // themselves. Browsers give no way to confirm a download actually landed
+  // on disk, so this is a best-effort safety net, not a guarantee.
+  if (records.length > 0) {
+    try {
+      downloadCsv(records, `ntarei-checkin-backup-${timestampForFilename()}.csv`);
+    } catch (err) {
+      announce('Could not create a backup. Nothing was deleted — please try again.');
+      return;
+    }
+  }
+
   try {
     await clearAllRecords();
   } catch (err) {
-    announce('Could not clear records. Please try again.');
+    announce('Backup downloaded, but records could not be cleared. Please try again.');
     return;
   }
   showStaffDefault();
   await refreshRecordCount();
-  announce('All records cleared from this tablet.');
+  announce('Backed up and cleared all records from this tablet.');
 });
 
 // If the browser restores this page from the back/forward cache (e.g. staff
