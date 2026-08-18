@@ -80,15 +80,17 @@
       </div>
 
       <div class="field field--checkbox">
+        <p class="field-hint">Is this your first time to attend an NTAREI Main Meeting?</p>
         <label class="checkbox-label">
           <input type="checkbox" id="first-time" name="first_time" />
           <span>Yes, my first time.</span>
         </label>
-        <p class="field-hint">Is this your first time to attend an NTAREI Main Meeting?</p>
       </div>
 
       <fieldset class="field field--radio-group">
         <legend>How did you learn about this meeting?</legend>
+        <p class="field-hint">Please choose one option.</p>
+        <p class="field-error" id="source-error" role="alert" hidden>Please choose one option.</p>
         <label class="radio-label">
           <input type="radio" name="source" value="Google search" required />
           <span>Google search</span>
@@ -117,19 +119,18 @@
           <input type="radio" name="source" value="Meetup" />
           <span>Meetup</span>
         </label>
-        <label class="radio-label">
-          <input type="radio" name="source" value="Other" id="source-other-radio" />
-          <span>Other</span>
-        </label>
-        <input
-          type="text"
-          id="source-other-text"
-          name="source_other"
-          class="source-other-text"
-          placeholder="Please tell us more"
-          disabled
-        />
-        <p class="field-error" id="source-error" role="alert" hidden>Please choose one option.</p>
+        <div class="radio-label radio-label--other">
+          <input type="radio" name="source" value="Other" id="source-other-radio" aria-label="Other" />
+          <input
+            type="text"
+            id="source-other-text"
+            name="source_other"
+            class="source-other-text"
+            placeholder="Other"
+            aria-label="Other, please specify"
+            disabled
+          />
+        </div>
       </fieldset>
 
       <p class="thank-you">Thank you. We&rsquo;re glad you came.</p>
