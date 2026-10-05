@@ -238,6 +238,9 @@ Run this on both the target iPad (Safari) and an Android tablet (Chrome) before 
 - [ ] With Wi-Fi off, app launches from Home Screen and the sign-in form appears.
 - [ ] Required-field validation: submitting with First name, Last name, Email, ZIP code,
       or a "how did you learn" selection missing shows an inline error and does not advance.
+- [ ] Email must look like `name@domain.ext`: entering `markexample.com` or `mark@example`
+      shows "Please enter a valid email, like name@domain.com." and does not advance.
+      (This is a format check only — it can't tell whether the address really exists.)
 - [ ] Selecting "Other" enables the free-text field; selecting any other source disables
       and clears it.
 - [ ] CONTINUE shows a read-only handoff screen with the entered name, email, ZIP,

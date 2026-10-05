@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ntarei-checkin-v13';
+const CACHE_NAME = 'ntarei-checkin-v14';
 
 const APP_SHELL = [
   './',
@@ -7,6 +7,7 @@ const APP_SHELL = [
   './src/app.js',
   './src/db.js',
   './src/export.js',
+  './src/validation.js',
   './src/styles.css',
   './icons/icon-192.png',
   './icons/icon-512.png',

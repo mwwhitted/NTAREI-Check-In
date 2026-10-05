@@ -1,5 +1,6 @@
 import { putRecord, getAllRecords, countRecords, clearAllRecords } from './db.js';
 import { downloadCsv, timestampForFilename } from './export.js';
+import { isValidEmail } from './validation.js';
 
 const attendeeView = document.getElementById('attendee-view');
 const handoffView = document.getElementById('handoff-view');
@@ -105,6 +106,10 @@ function validate(data) {
   }
   if (!data.email) {
     setFieldError('email', 'Email is required.');
+    valid = false;
+    firstInvalidEl = firstInvalidEl || emailInput;
+  } else if (!isValidEmail(data.email)) {
+    setFieldError('email', 'Please enter a valid email, like name@domain.com.');
     valid = false;
     firstInvalidEl = firstInvalidEl || emailInput;
   }
