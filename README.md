@@ -254,8 +254,10 @@ Run this on both the target iPad (Safari) and an Android tablet (Chrome) before 
 - [ ] NEXT ATTENDEE returns to a **blank** form — no leftover text, checkbox, or radio
       selection from the previous attendee.
 - [ ] The NTAREI logo appears at the far left of the header, to the left of the app name.
-- [ ] Rotating the tablet between portrait and landscape keeps the app usable in both
-      orientations (no longer portrait-locked).
+- [ ] Orientation: on Android, the installed app stays in portrait when the tablet is
+      rotated (reinstall the Home Screen icon after this setting changes — Android bakes
+      it in at install time). On iPad, web apps can't force an orientation, so turn on
+      the iPad's **Rotation Lock** in Control Center for event use.
 - [ ] Enter at least 30 consecutive attendees (mix of short/long names, punctuation in
       names, and "Other" source with free text) without errors or slowdown.
 - [ ] Staff panel record count increases as expected and matches the number of attendees
@@ -276,5 +278,5 @@ Run this on both the target iPad (Safari) and an Android tablet (Chrome) before 
       "No entries yet." instead.
 - [ ] Email field opens the email-optimized keyboard (with `@` and `.` shortcuts).
 - [ ] On-screen keyboard does not obscure the field currently being typed into.
-- [ ] No horizontal scrolling at any point, in either orientation.
+- [ ] No horizontal scrolling at any point.
 - [ ] Two tablets used at once (both offline) keep fully independent record counts.
