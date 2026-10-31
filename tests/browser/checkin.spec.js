@@ -112,3 +112,41 @@ test('meeting setup is required, persists across midnight, and isolates subseque
   await page.reload();
   await expect(page.locator('#meeting-setup')).toBeVisible();
 });
+
+test('scroll cue follows the visible viewport above a simulated keyboard', async ({ page }) => {
+  // Desktop automation cannot open an Android keyboard. Model its visual
+  // viewport resize and pan while leaving the layout viewport unchanged.
+  await page.addInitScript(() => {
+    const viewport = new EventTarget();
+    viewport.height = innerHeight;
+    viewport.offsetTop = 0;
+    Object.defineProperty(window, 'visualViewport', { value: viewport });
+  });
+  await page.goto('/');
+  await page.locator('#meeting-name').fill('Keyboard test');
+  await page.getByRole('button', { name: 'Start Meeting', exact: true }).click();
+  await page.locator('#email').focus();
+  await page.evaluate(() => {
+    visualViewport.height = 520;
+    visualViewport.dispatchEvent(new Event('resize'));
+  });
+  const cue = page.locator('#scroll-cue');
+  await expect(cue).toBeVisible();
+  let bounds = await cue.boundingBox();
+  expect(Math.round(bounds.y + bounds.height)).toBe(520);
+  await page.evaluate(() => {
+    visualViewport.offsetTop = 40;
+    visualViewport.dispatchEvent(new Event('scroll'));
+  });
+  bounds = await cue.boundingBox();
+  expect(Math.round(bounds.y + bounds.height)).toBe(560);
+  await page.evaluate(() => {
+    visualViewport.height = innerHeight;
+    visualViewport.offsetTop = 0;
+    visualViewport.dispatchEvent(new Event('resize'));
+  });
+  bounds = await cue.boundingBox();
+  expect(Math.round(bounds.y + bounds.height)).toBe(1024);
+  await page.getByRole('button', { name: 'REVIEW MY INFORMATION' }).scrollIntoViewIfNeeded();
+  await expect(cue).toBeHidden();
+});

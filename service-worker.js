@@ -1,14 +1,14 @@
-const CACHE_NAME = 'ntarei-checkin-v18';
+const CACHE_NAME = 'ntarei-checkin-v19';
 
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './src/app.js?v=18',
+  './src/app.js?v=19',
   './src/db.js',
-  './src/export.js?v=18',
+  './src/export.js?v=19',
   './src/validation.js',
-  './src/styles.css?v=18',
+  './src/styles.css?v=19',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',

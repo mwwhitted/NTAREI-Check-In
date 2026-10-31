@@ -1,5 +1,5 @@
 import { putRecord, getAllRecords, countRecords, clearAllRecords } from './db.js';
-import { downloadCsv, timestampForFilename } from './export.js?v=18';
+import { downloadCsv, timestampForFilename } from './export.js?v=19';
 import { isValidEmail } from './validation.js';
 
 const attendeeView = document.getElementById('attendee-view');
@@ -441,7 +441,11 @@ function updateScrollCue() {
   const viewportBottom = window.visualViewport
     ? window.visualViewport.offsetTop + window.visualViewport.height
     : window.innerHeight;
-  document.getElementById('scroll-cue').hidden =
+  const cue = document.getElementById('scroll-cue');
+  // Fixed elements follow the layout viewport; the keyboard can shrink only
+  // the visual viewport. Lift the cue to the visible bottom, including panning.
+  cue.style.bottom = `${Math.max(0, window.innerHeight - viewportBottom)}px`;
+  cue.hidden =
     phase !== 'form' || !activeMeeting || form.getBoundingClientRect().bottom <= viewportBottom + 2;
 }
 window.addEventListener('scroll', updateScrollCue, { passive: true });

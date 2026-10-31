@@ -100,6 +100,17 @@ test('review/edit/finish, incomplete export exclusion, and isolated read-only st
   el('attendee-form').getBoundingClientRect = () => ({ bottom: 2000 });
   window.dispatchEvent(new dom.window.Event('scroll'));
   assert.equal(el('scroll-cue').hidden, false);
+  const viewport = new dom.window.EventTarget();
+  viewport.height = 400;
+  viewport.offsetTop = 80;
+  Object.defineProperty(window, 'visualViewport', { configurable: true, value: viewport });
+  window.dispatchEvent(new dom.window.Event('scroll'));
+  assert.equal(el('scroll-cue').style.bottom, `${window.innerHeight - 480}px`);
+  assert.equal(el('scroll-cue').hidden, false);
+  viewport.height = window.innerHeight;
+  viewport.offsetTop = 0;
+  window.dispatchEvent(new dom.window.Event('resize'));
+  assert.equal(el('scroll-cue').style.bottom, '0px');
   el('attendee-form').getBoundingClientRect = () => ({ bottom: 100 });
   window.dispatchEvent(new dom.window.Event('scroll'));
   assert.equal(el('scroll-cue').hidden, true);
