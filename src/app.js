@@ -1,5 +1,5 @@
 import { putRecord, getAllRecords, countRecords, clearAllRecords } from './db.js';
-import { downloadCsv, timestampForFilename } from './export.js';
+import { downloadCsv, timestampForFilename } from './export.js?v=18';
 import { isValidEmail } from './validation.js';
 
 const attendeeView = document.getElementById('attendee-view');
