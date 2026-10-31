@@ -4,6 +4,12 @@ import { isValidEmail } from './validation.js';
 
 const attendeeView = document.getElementById('attendee-view');
 const handoffView = document.getElementById('handoff-view');
+const completionView = document.getElementById('completion-view');
+const finishedBtn = document.getElementById('finished-btn');
+let phase = 'setup';
+let activeMeeting = null;
+const meetingKey = 'ntarei-active-meeting';
+let saving = false;
 const form = document.getElementById('attendee-form');
 
 const firstNameInput = document.getElementById('first-name');
@@ -154,8 +160,11 @@ function populateFormUI(record) {
 }
 
 function showForm() {
+  phase = 'form';
+  completionView.hidden = true;
   handoffView.hidden = true;
   attendeeView.hidden = false;
+  requestAnimationFrame(updateScrollCue);
   window.scrollTo(0, 0);
   firstNameInput.focus({ preventScroll: true });
 }
@@ -170,8 +179,10 @@ function showHandoff(record) {
     record.source === 'Other' && record.source_other ? `Other — ${record.source_other}` : record.source;
   document.getElementById('handoff-source').textContent = sourceText;
 
+  phase = 'review';
   attendeeView.hidden = true;
   handoffView.hidden = false;
+  updateScrollCue();
   window.scrollTo(0, 0);
   // preventScroll: focusing EDIT would otherwise scroll it into view, undoing
   // the scrollTo above and reopening the handoff screen mid-page instead of
@@ -211,30 +222,49 @@ form.addEventListener('submit', async (event) => {
     return;
   }
 
-  working = {
-    ...working,
-    ...data,
-    created_at: working.created_at || new Date().toISOString(),
-  };
-
-  try {
-    await putRecord(working);
-  } catch (err) {
-    announce('Could not save this record. Please try again.');
-    return;
-  }
-
+  if (phase !== 'form' || !activeMeeting) return;
+  working = { ...working, ...data };
   announce('');
   showHandoff(working);
-  refreshRecordCount();
+});
+
+finishedBtn.addEventListener('click', async () => {
+  if (phase !== 'review' || saving || !activeMeeting) return;
+  saving = true;
+  finishedBtn.disabled = true;
+  editBtn.disabled = true;
+  try {
+    const completed = { ...working, meeting_id: activeMeeting.id, meeting_name: activeMeeting.name, created_at: new Date().toISOString() };
+    await putRecord(completed);
+    working = completed;
+    phase = 'complete';
+    handoffView.hidden = true;
+    completionView.hidden = false;
+    announce('');
+    window.scrollTo(0, 0);
+    document.getElementById('completion-title').focus({ preventScroll: true });
+    refreshRecordCount();
+    hideTonight();
+  } catch {
+    announce('Could not save this record. Please press FINISHED to try again.');
+  } finally {
+    saving = false;
+    finishedBtn.disabled = false;
+    editBtn.disabled = false;
+  }
 });
 
 editBtn.addEventListener('click', () => {
+  if (phase !== 'review' || saving || !activeMeeting) return;
   populateFormUI(working);
   showForm();
 });
 
 nextAttendeeBtn.addEventListener('click', () => {
+  staffPanel.open = false;
+  hideLastEntry();
+  hideTonight();
+  announce('');
   working = newWorkingRecord();
   resetFormUI();
   showForm();
@@ -276,6 +306,7 @@ staffPanel.addEventListener('toggle', () => {
     // showing stale data from before.
     showStaffDefault();
     hideLastEntry();
+    hideTonight();
   }
 });
 
@@ -377,6 +408,8 @@ clearDataConfirmBtn.addEventListener('click', async () => {
     return;
   }
   showStaffDefault();
+  hideLastEntry();
+  hideTonight();
   await refreshRecordCount();
   announce('Backed up and cleared all records from this tablet.');
 });
@@ -402,3 +435,151 @@ if ('serviceWorker' in navigator) {
 
 resetFormUI();
 refreshRecordCount();
+
+// The cue tracks the form end, not the document end (which includes staff UI).
+function updateScrollCue() {
+  const viewportBottom = window.visualViewport
+    ? window.visualViewport.offsetTop + window.visualViewport.height
+    : window.innerHeight;
+  document.getElementById('scroll-cue').hidden =
+    phase !== 'form' || !activeMeeting || form.getBoundingClientRect().bottom <= viewportBottom + 2;
+}
+window.addEventListener('scroll', updateScrollCue, { passive: true });
+window.addEventListener('resize', updateScrollCue);
+window.visualViewport?.addEventListener('resize', updateScrollCue);
+window.visualViewport?.addEventListener('scroll', updateScrollCue);
+new ResizeObserver(updateScrollCue).observe(form);
+requestAnimationFrame(updateScrollCue);
+
+const tonightPanel = document.getElementById('tonight-panel');
+const tonightList = document.getElementById('tonight-list');
+const tonightDetails = document.getElementById('tonight-details');
+const searchInput = document.getElementById('registration-search');
+let tonightRecords = [];
+let lookupGeneration = 0;
+function hideTonight() {
+  lookupGeneration++;
+  tonightPanel.hidden = true;
+  tonightRecords = [];
+  tonightList.replaceChildren();
+  tonightDetails.replaceChildren();
+  tonightDetails.hidden = true;
+  searchInput.value = '';
+}
+function renderTonight() {
+  tonightList.replaceChildren();
+  tonightDetails.hidden = true;
+  tonightDetails.replaceChildren();
+  const query = searchInput.value.trim().toLocaleLowerCase();
+  const matches = tonightRecords.filter(r =>
+    `${r.first_name} ${r.last_name} ${r.email}`.toLocaleLowerCase().includes(query));
+  document.getElementById('tonight-status').textContent = matches.length
+    ? `${matches.length} registration(s)` : 'No matching registrations for this meeting.';
+  for (const record of matches) {
+    const item = document.createElement('li');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn btn--secondary';
+    button.textContent = `${record.first_name} ${record.last_name} — ${record.email}`;
+    button.addEventListener('click', () => {
+      tonightDetails.replaceChildren();
+      const answers = {
+        'Name': `${record.first_name} ${record.last_name}`,
+        'Email': record.email, 'ZIP code': record.zip,
+        'First NTAREI Main Meeting': record.first_time ? 'YES' : 'No',
+        'How learned': record.source === 'Other' ? `Other — ${record.source_other || ''}` : record.source,
+        'Submitted': new Date(record.created_at).toLocaleString(),
+      };
+      for (const [label, value] of Object.entries(answers)) {
+        const row = document.createElement('div');
+        row.className = 'handoff-row';
+        const dt = document.createElement('dt');
+        const dd = document.createElement('dd');
+        dt.textContent = label;
+        dd.textContent = value;
+        row.append(dt, dd);
+        tonightDetails.append(row);
+      }
+      tonightDetails.hidden = false;
+    });
+    item.append(button);
+    tonightList.append(item);
+  }
+}
+document.getElementById('tonight-btn').addEventListener('click', async () => {
+  if (!tonightPanel.hidden) { hideTonight(); return; }
+  const generation = ++lookupGeneration;
+  try {
+    const records = await getAllRecords();
+    if (generation !== lookupGeneration || !staffPanel.open) return;
+    tonightRecords = records.filter(r => activeMeeting && r.meeting_id === activeMeeting.id)
+      .sort((a, b) => a.created_at.localeCompare(b.created_at));
+    tonightPanel.hidden = false;
+    renderTonight();
+    searchInput.focus();
+  } catch { announce('Could not load this meeting’s registrations. Please try again.'); }
+});
+searchInput.addEventListener('input', renderTonight);
+
+
+const meetingSetup = document.getElementById('meeting-setup');
+const meetingName = document.getElementById('meeting-name');
+const meetingCancel = document.getElementById('meeting-cancel');
+function showMeetingSetup() {
+  phase = 'setup';
+  attendeeView.hidden = handoffView.hidden = completionView.hidden = true;
+  meetingSetup.hidden = false;
+  meetingName.value = '';
+  meetingCancel.hidden = !activeMeeting;
+  document.getElementById('meeting-error').textContent = '';
+  staffPanel.open = false;
+  hideTonight();
+  updateScrollCue();
+  window.scrollTo(0, 0);
+  meetingName.focus();
+}
+function displayMeeting() {
+  document.getElementById('current-meeting').textContent = `Meeting: ${activeMeeting.name}`;
+  meetingSetup.hidden = true;
+  showForm();
+}
+document.getElementById('meeting-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const name = meetingName.value.trim();
+  if (!name) {
+    document.getElementById('meeting-error').textContent = 'Please enter the Meeting Name.';
+    meetingName.focus();
+    return;
+  }
+  const meeting = { id: generateRecordId(), name };
+  try {
+    window.localStorage.setItem(meetingKey, JSON.stringify(meeting));
+  } catch {
+    document.getElementById('meeting-error').textContent = 'Could not remember this meeting on this tablet. Please enable local storage and try again.';
+    return;
+  }
+  activeMeeting = meeting;
+  working = newWorkingRecord();
+  resetFormUI();
+  hideLastEntry();
+  hideTonight();
+  announce('');
+  displayMeeting();
+});
+meetingCancel.addEventListener('click', () => { if (activeMeeting) displayMeeting(); });
+document.getElementById('new-meeting-btn').addEventListener('click', () => {
+  const data = collectFormData();
+  if (saving || phase === 'review' || phase === 'complete' ||
+      Object.values(data).some(value => value !== '' && value !== false)) {
+    announce('Please finish this registration and select NEXT ATTENDEE before starting a new meeting.');
+    return;
+  }
+  showMeetingSetup();
+});
+try {
+  const stored = JSON.parse(window.localStorage.getItem(meetingKey));
+  if (stored && typeof stored.id === 'string' && stored.id.trim() &&
+      typeof stored.name === 'string' && stored.name.trim()) activeMeeting = stored;
+} catch { /* Missing, unreadable, or invalid preferences require meeting setup. */ }
+if (activeMeeting) displayMeeting();
+else showMeetingSetup();

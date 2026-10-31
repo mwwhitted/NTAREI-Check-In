@@ -25,6 +25,7 @@
     <summary class="staff-panel__toggle">Staff</summary>
 
     <div class="staff-panel__body" id="staff-panel-default">
+      <button type="button" id="new-meeting-btn" class="btn btn--secondary">Start New Meeting</button>
       <p class="staff-panel__count">Records saved: <strong id="record-count">0</strong></p>
       <button type="button" id="export-csv-btn" class="btn btn--secondary">Export CSV</button>
       <p class="staff-panel__hint">Exports all records stored on this tablet.</p>
@@ -58,6 +59,15 @@
         </div>
       </dl>
 
+      <button type="button" id="tonight-btn" class="btn btn--secondary">Meeting Registrations</button>
+      <section id="tonight-panel" hidden aria-label="Meeting registrations">
+        <label for="registration-search">Search by name or email</label>
+        <input id="registration-search" type="search" autocomplete="off" />
+        <p class="staff-panel__hint">Saved entries for the active meeting on this tablet. Read only.</p>
+        <p id="tonight-status" role="status"></p>
+        <ul id="tonight-list"></ul>
+        <dl id="tonight-details" class="handoff-details" hidden></dl>
+      </section>
       <hr class="staff-panel__divider" />
 
       <button type="button" id="clear-data-btn" class="btn btn--danger-outline">Clear All Data&hellip;</button>
@@ -89,8 +99,22 @@
 </header>
 
 <main>
+  <p id="current-meeting" class="event-title"></p>
+  <section id="meeting-setup" hidden>
+    <h1>Set Up This Meeting</h1>
+    <p>Staff: enter the Meeting Name before checking anyone in. This meeting stays active until you start a new one, even after midnight.</p>
+    <form id="meeting-form" novalidate>
+      <div class="field">
+        <label for="meeting-name">Meeting Name</label>
+        <input id="meeting-name" type="text" autocomplete="off" required />
+      </div>
+      <p id="meeting-error" role="alert"></p>
+      <button class="btn btn--primary" type="submit">Start Meeting</button>
+      <button class="btn btn--secondary" id="meeting-cancel" type="button" hidden>Cancel</button>
+    </form>
+  </section>
   <!-- Attendee sign-in form -->
-  <section id="attendee-view" class="view">
+  <section id="attendee-view" class="view" hidden>
     <h1 class="event-title">NTAREI MAIN MEETING</h1>
     <p class="event-subtitle">Welcome. Please sign in.</p>
 
@@ -175,15 +199,15 @@
 
       <p class="thank-you">Thank you. We&rsquo;re glad you came.</p>
 
-      <button type="submit" class="btn btn--primary btn--large">CONTINUE &rarr;</button>
+      <button type="submit" class="btn btn--primary btn--large">REVIEW MY INFORMATION &rarr;</button>
     </form>
   </section>
 
   <!-- Read-only staff handoff view -->
   <section id="handoff-view" class="view" hidden>
     <p class="handoff-instruction">
-      Confirmation of your entry. Please review, and correct with the Edit
-      button below if needed.
+      Please check every answer below. Press EDIT to correct or add anything.
+      When everything is correct, press FINISHED to save your registration.
     </p>
     <h1 class="handoff-name" id="handoff-name"></h1>
     <dl class="handoff-details">
@@ -209,16 +233,20 @@
       <button type="button" id="edit-btn" class="btn btn--secondary">&larr; EDIT</button>
     </div>
 
-    <p class="thank-you">Thanks for Checking in.</p>
+    <button type="button" id="finished-btn" class="btn btn--primary btn--large">FINISHED ✓</button>
+  </section>
 
-    <p class="return-to-staff">When complete, please return this tablet to Check-In staff.</p>
-
+  <section id="completion-view" class="view" hidden>
+    <h1 id="completion-title" tabindex="-1" class="event-subtitle">You’re All Done!</h1>
+    <p class="thank-you">Thank you. Your registration is saved.</p>
+    <p class="return-to-staff">Please hand this tablet to the staff.</p>
     <div class="handoff-next-spacer" aria-hidden="true"></div>
-
     <div class="handoff-next-corner">
       <button type="button" id="next-attendee-btn" class="btn btn--primary btn--next-small">NEXT ATTENDEE</button>
     </div>
   </section>
+
+  <div id="scroll-cue" hidden><strong>MORE QUESTIONS BELOW ↓</strong><br />Swipe up to continue</div>
 
   <p class="status-message" id="status-message" role="status" aria-live="polite"></p>
 </main>

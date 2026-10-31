@@ -2,8 +2,8 @@
 
 A small offline-first Progressive Web App (PWA) that replaces the paper clipboard for
 attendee check-in at NTAREI meetings. Each tablet runs independently: attendees fill out
-a sign-in form, staff review it on a read-only handoff screen, then reset for the next
-person. All data stays on the tablet in IndexedDB until staff explicitly export a CSV.
+a sign-in form, review every answer, and press FINISHED to save. The completion screen
+asks them to hand the tablet to staff, who reset it for the next person. All data stays on the tablet in IndexedDB until staff explicitly export a CSV.
 
 There is no server, no login, no sync between tablets, and no network calls at runtime.
 
@@ -16,7 +16,7 @@ There is no server, no login, no sync between tablets, and no network calls at r
 ## Project structure
 
 ```
-index.html              Attendee form + staff handoff screens
+index.html              Form, review, completion, and staff views
 manifest.webmanifest     PWA install metadata
 service-worker.js        Caches the app shell for offline use
 src/
@@ -50,7 +50,7 @@ network, using your computer's LAN IP) to try the app before testing on-device.
 ## Running automated tests
 
 ```bash
-npm install   # one-time; installs the fake-indexeddb dev/test dependency only
+npm install   # one-time; installs development/test dependencies
 npm test
 ```
 
@@ -137,7 +137,7 @@ deleted is the explicit, confirmed **Clear All Data** action described below.
    spreadsheet if needed — this app does not merge tablets itself.
 
 CSV columns (in order): `record_id, created_at, first_name, last_name, email, zip,
-first_time, source, source_other`. Commas, quotes, and line breaks inside a field are
+first_time, source, source_other, meeting_id, meeting_name`. Commas, quotes, and line breaks inside a field are
 escaped per RFC 4180 so the file opens correctly in Excel or Numbers.
 
 ## SAFE procedure: export test data, then clear it before live use
@@ -183,100 +183,79 @@ controls instead:
 - **Android Chrome:** Chrome menu → Settings → Site settings → find the app's site →
   Clear & reset.
 
-## iPad Mini acceptance sequence (exact steps)
+## Release 1 acceptance checklist
 
-Run this exact sequence once, start to finish, on the iPad Mini before it's used at a
-real event. It covers 30 fake attendees, an app close/reopen, CSV export, and the final
-test-data clear.
+Run on the target iPad Safari and Android Chrome tablets before an event:
 
-1. **Install.** Follow *Installing on a tablet → iPad Mini (Safari)* above. Confirm the
-   app icon appears on the Home Screen and opens full-screen.
-2. **Go offline.** Turn on Airplane Mode. Confirm Wi-Fi and cellular both show off in
-   Control Center.
-3. **Force-quit and relaunch** the app from the Home Screen icon, so you know this run
-   starts from a cold, fully-offline launch — not a paused browser tab.
-4. **Enter 30 fake attendees.** For each one:
-   - Fill in First name, Last name, Email, and ZIP code (mix in a few with punctuation,
-     e.g. `O'Brien`, `Mary-Jane`, and a long name/email, to exercise CSV escaping later).
-   - Optionally check "Yes, my first time."
-   - Select one "How did you learn about this meeting?" option; for at least 3 of the 30,
-     choose **Other** and type a short free-text reason (include a comma and a quote
-     character in at least one, e.g. `friend's referral, "loved it"`).
-   - Tap **CONTINUE →** and confirm the read-only handoff screen shows exactly what was
-     entered, including the prominent red "When complete, please return the tablet to
-     staff." message.
-   - Tap **← EDIT**, confirm the form re-populates with everything you entered (including
-     ZIP), then tap **CONTINUE →** again.
-   - Scroll down to find **NEXT ATTENDEE** in the bottom-right corner — it's deliberately
-     placed below the fold so it isn't in easy reach next to EDIT — tap it and confirm the
-     form is completely blank before starting the next attendee.
-   - Every few attendees, open the **Staff** panel and confirm **Records saved** matches
-     the count entered so far.
-5. **After all 30**, open the **Staff** panel and confirm **Records saved: 30**.
-6. **Close and reopen.** Force-quit the app completely (swipe it away in the app
-   switcher), relaunch it from the Home Screen — still in Airplane Mode — and open the
-   **Staff** panel again. Confirm it still reads **Records saved: 30**.
-7. **Export CSV.** Tap **Export CSV**. Open the downloaded file (Files app, or AirDrop it
-   to a Mac) and confirm:
-   - Exactly 30 data rows, plus one header row.
-   - The header reads `record_id,created_at,first_name,last_name,email,zip,first_time,source,source_other`.
-   - Names with punctuation and the "Other" free-text entries containing a comma/quote
-     appear as single, correctly-formed cells (not split into extra columns).
-8. **Clear test data.** Follow *SAFE procedure: export test data, then clear it before
-   live use* above: open the **Staff** panel, tap **Clear All Data…**, confirm the
-   warning names 30 records, tap **Download Backup CSV** and confirm it downloads and
-   unlocks **Delete all**, then tap **Delete all**.
-9. **Verify zero.** Confirm the **Staff** panel now reads **Records saved: 0**. Close and
-   reopen the app once more and confirm it still reads **0** — the tablet is now clean
-   and ready to hand to the first real attendee.
+1. Prepare the app online, close it, enable Airplane Mode, and relaunch from Home Screen.
+2. Confirm **MORE QUESTIONS BELOW ↓ / Swipe up to continue** stays visible until the
+   bottom of the form, then disappears. Repeat in both orientations and with the keyboard.
+3. Try an incomplete form. Validation must prevent review; the saved count and CSV must
+   not include it.
+4. Complete every field, including the first-time checkbox and Other text. Tap
+   **REVIEW MY INFORMATION**. Verify all answers; the saved count must still be unchanged.
+5. Tap **EDIT**. Verify every answer is preserved. Change one and review again.
+6. Tap **FINISHED**. Confirm one saved record and the large hand-to-staff message.
+7. Staff selects **NEXT ATTENDEE** below the completion message. Verify the form is blank
+   and previous staff details are closed.
+8. Enter several more attendees. In **Staff → Meeting Registrations**, search by name
+   and email and open different entries. They must be read only, with no change to the
+   current form or saved records. Closing Staff clears lookup details.
+9. Verify **View Last Entry**, record count, CSV download, and backup-before-clear controls.
+10. Close and reopen offline. Verify saved records persist and CSV punctuation is correct.
+    Use the backup and clear procedure above to remove test data before live use.
 
-## Manual test checklist
+### Meeting setup and use across midnight
 
-Run this on both the target iPad (Safari) and an Android tablet (Chrome) before an event.
+The first launch of this update asks staff for a **Meeting Name**. A blank or missing
+name keeps the setup prompt open and prevents check-in. The name and a generated meeting
+identifier are remembered on this tablet across reloads, offline restarts, and midnight.
+The active name is displayed above the form. There is no automatic daily reset.
 
-- [ ] App installs to Home Screen and launches in standalone mode (no browser address bar).
-- [ ] With Wi-Fi off, app launches from Home Screen and the sign-in form appears.
-- [ ] Required-field validation: submitting with First name, Last name, Email, ZIP code,
-      or a "how did you learn" selection missing shows an inline error and does not advance.
-- [ ] Email must look like `name@domain.ext`: entering `markexample.com` or `mark@example`
-      shows "Please enter a valid email, like name@domain.com." and does not advance.
-      (This is a format check only — it can't tell whether the address really exists.)
-- [ ] Selecting "Other" enables the free-text field; selecting any other source disables
-      and clears it.
-- [ ] CONTINUE shows a read-only handoff screen with the entered name, email, ZIP,
-      first-time status, and source — including the prominent red "When complete, please
-      return the tablet to staff." message.
-- [ ] EDIT / BACK returns to the form with all previously entered values intact, including
-      ZIP.
-- [ ] NEXT ATTENDEE sits in the bottom-right corner, smaller than the other buttons, and
-      requires scrolling to reach — this is intentional (a deliberate product decision, not
-      a bug) so it isn't within easy reach of EDIT/RETURN TO STAFF.
-- [ ] NEXT ATTENDEE returns to a **blank** form — no leftover text, checkbox, or radio
-      selection from the previous attendee.
-- [ ] The NTAREI logo appears at the far left of the header, to the left of the app name.
-- [ ] Orientation: on Android, the installed app stays in portrait when the tablet is
-      rotated (reinstall the Home Screen icon after this setting changes — Android bakes
-      it in at install time). On iPad, web apps can't force an orientation, so turn on
-      the iPad's **Rotation Lock** in Control Center for event use.
-- [ ] Enter at least 30 consecutive attendees (mix of short/long names, punctuation in
-      names, and "Other" source with free text) without errors or slowdown.
-- [ ] Staff panel record count increases as expected and matches the number of attendees
-      entered.
-- [ ] Fully close the app and reopen it (still offline) — record count is unchanged and
-      no data was lost.
-- [ ] Export CSV, open it in a spreadsheet app, and confirm the row count matches and
-      punctuation/commas/quotes/line breaks in test data render as single, correct cells.
-- [ ] Tapping **Clear All Data…** shows a confirmation screen naming the exact record
-      count before anything is deleted; **Cancel** leaves all records untouched.
-- [ ] Confirming the clear deletes every record, updates the count to 0, and does not
-      require any second visit or app restart to take effect.
-- [ ] **Delete all** starts disabled on the confirmation screen and stays disabled until
-      **Download Backup CSV** is tapped and succeeds; check downloads for a fresh
-      `ntarei-checkin-backup-<date>_<time>.csv`.
-- [ ] Tap **View Last Entry** with records saved — shows the most recently checked-in
-      attendee's details, not the first one entered. With zero records, shows
-      "No entries yet." instead.
-- [ ] Email field opens the email-optimized keyboard (with `@` and `.` shortcuts).
-- [ ] On-screen keyboard does not obscure the field currently being typed into.
-- [ ] No horizontal scrolling at any point.
-- [ ] Two tablets used at once (both offline) keep fully independent record counts.
+Use **Staff → Start New Meeting** before the next event. It opens a blank name prompt;
+Cancel keeps the existing meeting. Finish any current registration and select NEXT
+ATTENDEE first to avoid moving a draft to a different meeting. Each new meeting receives
+a fresh identifier even if staff reuse the same name. Tablets remain independent.
+
+Meeting Registrations shows all saved entries for the active identifier, regardless of
+their calendar dates. Existing records without a meeting identifier remain unchanged and
+available through all-record CSV export and View Last Entry; no meeting is inferred from
+their dates. CSV retains its original nine columns in order and appends `meeting_id` and
+`meeting_name` (blank for legacy records). Consumers expecting exactly nine columns need
+to accept the two new columns. Clearing attendee data does not reset the active meeting.
+The existing Staff panel remains the staff access boundary; no password or accounts are
+introduced.
+
+### Automated browser check
+
+```bash
+npx playwright install chromium  # once, if using Playwright’s bundled browser
+npm run test:browser
+```
+
+For an existing Chrome installation, set `NTAREI_CHROME_PATH` to its executable instead.
+The browser check uses a local Python 3 static server on port 8080. It prepares the
+service worker, switches offline, reloads, checks review/edit/finish, reload persistence,
+read-only staff lookup, last entry, meeting setup, cross-midnight grouping, new-meeting
+isolation, and the downloaded CSV at a 768 × 1024 tablet viewport.
+`npm test` also checks all-field edit preservation, draft exclusion from exports,
+duplicate FINISHED clicks, date filtering, safe text rendering, and lookup isolation.
+All test libraries are development-only; the app has no new runtime dependencies.
+
+## Deferred database release
+
+No database schema, historical import, or contact integration changes are included here.
+For the later separate database branch: Constant Contact exports populate People/contact
+records only, retaining original added dates when present. They never establish attendance.
+Only actual historical Check-In CSVs establish meeting attendance.
+
+### Management app: assign meetings to legacy check-ins
+
+The next release must support reviewed assignment of `meeting_id` and `meeting_name`
+to existing check-in records that lack them. During import, staff selects or creates the
+meeting for each historical Check-In CSV, previews the affected records, and confirms
+before assignment. Preserve original record identifiers, submission timestamps, and
+attendee answers. Do not overwrite an existing meeting assignment silently or infer a
+meeting solely from a calendar date (a meeting can span midnight). An unmapped record
+remains explicitly unassigned until staff resolves it. Constant Contact contact imports
+must never enter this attendance-assignment process or create attendance history.

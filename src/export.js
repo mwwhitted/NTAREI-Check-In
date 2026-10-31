@@ -8,6 +8,8 @@ const CSV_COLUMNS = [
   'first_time',
   'source',
   'source_other',
+  'meeting_id',
+  'meeting_name',
 ];
 
 function escapeCsvField(value) {

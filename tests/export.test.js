@@ -7,7 +7,7 @@ test('recordsToCsv includes the expected header in stable column order', () => {
   const [header] = csv.split('\r\n');
   assert.equal(
     header,
-    'record_id,created_at,first_name,last_name,email,zip,first_time,source,source_other'
+    'record_id,created_at,first_name,last_name,email,zip,first_time,source,source_other,meeting_id,meeting_name'
   );
 });
 
@@ -28,7 +28,7 @@ test('recordsToCsv renders a simple record without quoting', () => {
   const rows = csv.split('\r\n');
   assert.equal(
     rows[1],
-    'abc-123,2026-08-15T10:00:00.000Z,Mark,Whitted,mark@example.com,75001,Yes,ChatGPT / AI search,'
+    'abc-123,2026-08-15T10:00:00.000Z,Mark,Whitted,mark@example.com,75001,Yes,ChatGPT / AI search,,,'
   );
 });
 
