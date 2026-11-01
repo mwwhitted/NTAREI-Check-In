@@ -390,8 +390,8 @@ main {
 
 .handoff-instruction {
   text-align: center;
-  color: var(--color-danger);
-  font-size: 1.25rem;
+  color: #ff0000;
+  font-size: 1.5rem;
   margin: 8px 0 0;
 }
 
